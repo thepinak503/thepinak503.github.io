@@ -10,6 +10,14 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
+    // Hamburger menu toggle
+    const hamburger = document.getElementById('hamburger-menu');
+    const navLinks = document.querySelector('.nav-links');
+
+    hamburger.addEventListener('click', () => {
+        navLinks.classList.toggle('active');
+    });
+
     // Contact form submission
     const contactForm = document.getElementById('contact-form');
     contactForm.addEventListener('submit', function (e) {
