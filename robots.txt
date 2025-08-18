@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://thepinak503.github.io/sitemap.xml
+
+
