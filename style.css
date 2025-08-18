@@ -47,6 +47,21 @@ nav a {
     text-decoration: none;
 }
 
+.hamburger {
+    display: none;
+    cursor: pointer;
+    background: none;
+    border: none;
+}
+
+.hamburger span {
+    display: block;
+    width: 25px;
+    height: 3px;
+    margin: 5px;
+    background: #fff;
+}
+
 /* Hero Section */
 .hero {
     background: #333;
@@ -129,17 +144,30 @@ footer {
 
 /* Responsive Design */
 @media (max-width: 768px) {
-    nav {
+    .nav-links {
+        display: none;
         flex-direction: column;
-    }
-
-    nav ul {
-        flex-direction: column;
+        width: 100%;
         text-align: center;
-        margin-top: 1rem;
+        background: #333;
+        position: absolute;
+        top: 60px;
+        left: 0;
     }
 
-    nav ul li {
-        margin: 10px 0;
+    .nav-links.active {
+        display: flex;
+    }
+
+    .nav-links li {
+        padding: 1rem 0;
+    }
+
+    .hamburger {
+        display: block;
+    }
+
+    .hero-text h1 {
+        font-size: 2rem;
     }
 }
