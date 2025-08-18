@@ -14,6 +14,9 @@ document.addEventListener('DOMContentLoaded', () => {
 		root.setAttribute('data-theme', theme);
 		try { localStorage.setItem('theme', theme); } catch (e) { /* ignore */ }
 		if (themeToggle) themeToggle.setAttribute('aria-label', theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode');
+
+		const icon = document.getElementById('theme-icon');
+		if (icon) icon.textContent = theme === 'dark' ? 'light_mode' : 'dark_mode';
 	}
 
 	if (themeToggle) {
