@@ -9,14 +9,10 @@ Pinak is a passionate and aspiring computer engineer with a strong interest in b
 ## Website Features
 
 *   **Home:** A welcoming landing page.
-*   **About:** A section detailing Pinak's skills and interests.
+*   **About:** A section detailing my skills and interests.
 *   **Projects:** A gallery of his work.
 *   **Contact:** A form for visitors to get in touch.
 
 ## Live Website
 
 The website is deployed using GitHub Pages and can be accessed at [https://thepinak503.github.io/](https://thepinak503.github.io/).
-
-## Deployment
-
-For instructions on how to deploy this website, please see the [DEPLOYMENT.md](DEPLOYMENT.md) file.
