@@ -1,10 +1,10 @@
-# Personal Portfolio Website for Pinak Dhabu
+# Personal Portfolio Website for me
 
 This repository contains the source code for the personal portfolio website of Pinak Dhabu. The website is designed to showcase his skills, projects, and contact information.
 
 ## About Pinak Dhabu
 
-Pinak is a passionate and aspiring computer engineer with a strong interest in both Windows and Linux environments. He is a proficient coder with skills in C++, Python, and Java.
+I'm a passionate and aspiring computer engineer with a strong interest in both Windows and Linux environments. I'm a proficient coder with skills in C++, Python, and Java.
 
 ## Website Features
 
