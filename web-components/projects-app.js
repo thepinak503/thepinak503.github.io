@@ -53,15 +53,15 @@ function ProjectsApp() {
             ),
             h('div', { class: 'project-gallery' },
                 filtered.map(p => (
-                    h('article', { key: p.id, class: 'project-card', tabIndex: 0 },
+                    h('md-elevated-card', { key: p.id, class: 'project-card', tabIndex: 0 },
                         h('div', { class: 'project-card__body' },
                             h('h3', {}, p.name),
                             h('p', {}, p.desc),
                             h('p', { class: 'tech' }, p.tech.join(' · '))
                         ),
                         h('div', { class: 'project-card__actions' },
-                            h('a', { class: 'btn btn-sm', href: p.live, target: '_blank', rel: 'noopener', 'aria-label': `Open ${p.name}` }, 'Live'),
-                            h('a', { class: 'btn btn-sm btn-ghost', href: p.code, target: '_blank', rel: 'noopener', 'aria-label': `View code for ${p.name}` }, 'Code'),
+                            h('md-filled-tonal-button', { href: p.live, target: '_blank', rel: 'noopener', 'aria-label': `Open ${p.name}` }, 'Live'),
+                            h('md-outlined-button', { href: p.code, target: '_blank', rel: 'noopener', 'aria-label': `View code for ${p.name}` }, 'Code'),
                             h('button', { class: 'like-btn', type: 'button', onClick: () => toggleLike(p.id), 'aria-pressed': false },
                                 '❤ ', (likes[p.id]||0)
                             )

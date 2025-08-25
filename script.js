@@ -27,6 +27,12 @@ document.addEventListener('DOMContentLoaded', () => {
 	}
 
 	// Smooth scrolling for in-page anchors
+	function smoothScrollTo(targetId) {
+		const targetEl = document.querySelector(targetId);
+		if (!targetEl) return;
+		targetEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+	}
+	// legacy anchor links
 	document.querySelectorAll('a[href^="#"]').forEach(anchor => {
 		anchor.addEventListener('click', function (e) {
 			const targetId = this.getAttribute('href');
@@ -34,9 +40,14 @@ document.addEventListener('DOMContentLoaded', () => {
 			const targetEl = document.querySelector(targetId);
 			if (!targetEl) return;
 			e.preventDefault();
-			targetEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+			smoothScrollTo(targetId);
 		});
 	});
+	// Material hero buttons
+	const btnWork = document.getElementById('btn-view-work');
+	if (btnWork) btnWork.addEventListener('click', () => smoothScrollTo('#projects'));
+	const btnAbout = document.getElementById('btn-about-me');
+	if (btnAbout) btnAbout.addEventListener('click', () => smoothScrollTo('#about'));
 
 	// Hamburger menu toggle with ARIA updates
 	const hamburger = document.getElementById('hamburger-menu');
