@@ -43,11 +43,11 @@ document.addEventListener('DOMContentLoaded', () => {
 			smoothScrollTo(targetId);
 		});
 	});
-	// Material hero buttons
+	// Material hero buttons -> link to standalone pages
 	const btnWork = document.getElementById('btn-view-work');
-	if (btnWork) btnWork.addEventListener('click', () => smoothScrollTo('#projects'));
+	if (btnWork) btnWork.addEventListener('click', () => { window.location.href = 'projects.html'; });
 	const btnAbout = document.getElementById('btn-about-me');
-	if (btnAbout) btnAbout.addEventListener('click', () => smoothScrollTo('#about'));
+	if (btnAbout) btnAbout.addEventListener('click', () => { window.location.href = 'about.html'; });
 
 	// Hamburger menu toggle with ARIA updates
 	const hamburger = document.getElementById('hamburger-menu');
