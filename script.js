@@ -97,7 +97,7 @@ document.addEventListener('DOMContentLoaded', () => {
 		});
 	}
 
-	// Contact form enhanced validation + honeypot + status text
+	// Contact form enhanced validation + status text
 	const contactForm = document.getElementById('contact-form');
 	if (contactForm) {
 		const status = document.getElementById('form-status');
@@ -109,13 +109,6 @@ document.addEventListener('DOMContentLoaded', () => {
 			const websiteField = this.querySelector('input[name="website"]');
 			const website = (websiteField && websiteField.value ? websiteField.value : '').trim();
 
-			if (website) {
-				// Honeypot caught: silently pass as success
-				this.reset();
-				if (status) status.textContent = 'Thank you!';
-				return;
-			}
-
 			if (!name || !email || !message) {
 				if (status) status.textContent = 'Please fill out all fields.';
 				return;
@@ -123,6 +116,13 @@ document.addEventListener('DOMContentLoaded', () => {
 			if (!/^\S+@\S+\.\S+$/.test(email)) {
 				if (status) status.textContent = 'Please enter a valid email address.';
 				return;
+			}
+			if (website) {
+				try { new URL(website); }
+				catch {
+					if (status) status.textContent = 'Please enter a valid website URL (including https://).';
+					return;
+				}
 			}
 
 			const submitBtn = this.querySelector('button[type="submit"]');
