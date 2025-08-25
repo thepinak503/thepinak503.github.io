@@ -165,6 +165,7 @@ document.addEventListener('DOMContentLoaded', () => {
 	(function mountHeroEffects() {
 		const canvas = document.getElementById('hero-canvas');
 		const subtitle = document.getElementById('hero-subtitle');
+		const spotlight = document.getElementById('hero-spotlight');
 		if (!canvas || !subtitle) return;
 		const ctx = canvas.getContext('2d');
 		let width = 0, height = 0, raf = 0;
@@ -220,6 +221,31 @@ document.addEventListener('DOMContentLoaded', () => {
 		const onResize = () => { resize(); initParticles(); };
 		window.addEventListener('resize', onResize);
 		resize(); initParticles(); step();
+
+		// Spotlight follows pointer (reduced motion safe)
+		const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+		if (spotlight && !prefersReduced) {
+			const update = (x, y) => {
+				spotlight.style.setProperty('--x', x + 'px');
+				spotlight.style.setProperty('--y', y + 'px');
+			};
+			window.addEventListener('pointermove', (e) => update(e.clientX, e.clientY), { passive: true });
+		}
+
+		// Magnetic buttons
+		const magnets = document.querySelectorAll('.magnetic');
+		magnets.forEach(el => {
+			const strength = 20;
+			function onMove(e) {
+				const rect = el.getBoundingClientRect();
+				const dx = (e.clientX - (rect.left + rect.width / 2)) / rect.width;
+				const dy = (e.clientY - (rect.top + rect.height / 2)) / rect.height;
+				el.style.transform = `translate(${dx * strength}px, ${dy * strength}px)`;
+			}
+			function reset() { el.style.transform = ''; }
+			el.addEventListener('pointermove', onMove);
+			el.addEventListener('pointerleave', reset);
+		});
 
 		// Typewriter
 		const phrases = [
