@@ -1,0 +1,28 @@
+{
+  "name": "thepinak503.github.io",
+  "version": "1.0.0",
+  "description": "This repository contains the source code for the personal portfolio website of Pinak Dhabu. The website is designed to showcase his skills, projects, and contact information.",
+  "main": "script.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview --port 5173 --strictPort"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/thepinak503/thepinak503.github.io.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/thepinak503/thepinak503.github.io/issues"
+  },
+  "homepage": "https://github.com/thepinak503/thepinak503.github.io#readme",
+  "private": "true",
+  "devDependencies": {
+    "vite": "^7.1.3"
+  }
+}
