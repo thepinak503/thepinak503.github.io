@@ -160,6 +160,93 @@ document.addEventListener('DOMContentLoaded', () => {
 		}, { rootMargin: '200px 0px' });
 		obs.observe(projectsMount);
 	}
+
+	// Animated hero background (particles) + typewriter subtitle
+	(function mountHeroEffects() {
+		const canvas = document.getElementById('hero-canvas');
+		const subtitle = document.getElementById('hero-subtitle');
+		if (!canvas || !subtitle) return;
+		const ctx = canvas.getContext('2d');
+		let width = 0, height = 0, raf = 0;
+		const particles = [];
+		const PARTICLE_COUNT = 60;
+		const DPR = Math.min(2, window.devicePixelRatio || 1);
+
+		function resize() {
+			const rect = canvas.getBoundingClientRect();
+			width = Math.floor(rect.width);
+			height = Math.floor(rect.height);
+			canvas.width = Math.floor(width * DPR);
+			canvas.height = Math.floor(height * DPR);
+			ctx.scale(DPR, DPR);
+		}
+
+		function rand(min, max) { return Math.random() * (max - min) + min; }
+
+		function initParticles() {
+			particles.length = 0;
+			for (let i = 0; i < PARTICLE_COUNT; i++) {
+				particles.push({
+					x: rand(0, width),
+					y: rand(0, height),
+					r: rand(1, 2.5),
+					opacity: rand(0.3, 0.8),
+					vx: rand(-0.3, 0.3),
+					vy: rand(-0.15, 0.15)
+				});
+			}
+		}
+
+		function step() {
+			ctx.clearRect(0, 0, width, height);
+			ctx.save();
+			for (const p of particles) {
+				p.x += p.vx; p.y += p.vy;
+				if (p.x < -5) p.x = width + 5; if (p.x > width + 5) p.x = -5;
+				if (p.y < -5) p.y = height + 5; if (p.y > height + 5) p.y = -5;
+				ctx.globalAlpha = p.opacity;
+				const grad = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.r * 6);
+				grad.addColorStop(0, 'rgba(124,58,237,0.6)');
+				grad.addColorStop(1, 'rgba(124,58,237,0)');
+				ctx.fillStyle = grad;
+				ctx.beginPath();
+				ctx.arc(p.x, p.y, p.r * 4, 0, Math.PI * 2);
+				ctx.fill();
+			}
+			ctx.restore();
+			raf = requestAnimationFrame(step);
+		}
+
+		const onResize = () => { resize(); initParticles(); };
+		window.addEventListener('resize', onResize);
+		resize(); initParticles(); step();
+
+		// Typewriter
+		const phrases = [
+			'Developer',
+			'System enthusiast',
+			'Lifelong learner'
+		];
+		let pi = 0, ci = 0, deleting = false;
+		function typeStep() {
+			const current = phrases[pi % phrases.length];
+			if (!deleting) {
+				ci++;
+				if (ci >= current.length + 3) deleting = true;
+			} else {
+				ci--;
+				if (ci <= 0) { deleting = false; pi++; }
+			}
+			subtitle.textContent = current.slice(0, Math.max(0, ci));
+			setTimeout(typeStep, deleting ? 60 : 120);
+		}
+		setTimeout(typeStep, 500);
+
+		// Cleanup on page hide
+		document.addEventListener('visibilitychange', () => {
+			if (document.hidden) cancelAnimationFrame(raf); else step();
+		});
+	})();
 });
 
 
