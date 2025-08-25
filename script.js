@@ -126,6 +126,29 @@ document.addEventListener('DOMContentLoaded', () => {
 			}, 800);
 		});
 	}
+
+	// Lazy-load dynamic projects app
+	const projectsMount = document.getElementById('projects-app');
+	if (projectsMount && 'IntersectionObserver' in window) {
+		const once = { loaded: false };
+		const loader = () => {
+			if (once.loaded) return;
+			once.loaded = true;
+			const scriptEl = document.createElement('script');
+			scriptEl.type = 'module';
+			scriptEl.src = './web-components/projects-app.js';
+			document.body.appendChild(scriptEl);
+		};
+		const obs = new IntersectionObserver((entries) => {
+			entries.forEach(entry => {
+				if (entry.isIntersecting) {
+					loader();
+					obs.disconnect();
+				}
+			});
+		}, { rootMargin: '200px 0px' });
+		obs.observe(projectsMount);
+	}
 });
 
 

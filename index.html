@@ -86,40 +86,18 @@
 
 		<section id="projects" aria-labelledby="projects-heading">
 			<h2 id="projects-heading">Projects</h2>
-			<div class="project-gallery">
-				<article class="project-card" tabindex="0">
-					<div class="project-card__body">
-						<h3>Project 1</h3>
-						<p>A brief description of the first project highlighting goals and outcomes.</p>
-						<p class="tech">HTML · CSS · JavaScript</p>
+			<div id="projects-app" aria-live="polite">
+				<div class="projects-skeleton" aria-hidden="true">
+					<div class="projects-controls"></div>
+					<div class="project-gallery">
+						<div class="project-card"></div>
+						<div class="project-card"></div>
+						<div class="project-card"></div>
 					</div>
-					<div class="project-card__actions">
-						<a class="btn btn-sm" href="#" aria-label="Open Project 1">Live</a>
-						<a class="btn btn-sm btn-ghost" href="#" aria-label="View code for Project 1">Code</a>
-					</div>
-				</article>
-				<article class="project-card" tabindex="0">
-					<div class="project-card__body">
-						<h3>Project 2</h3>
-						<p>A concise summary of the second project with a focus on impact.</p>
-						<p class="tech">Python · Flask</p>
-					</div>
-					<div class="project-card__actions">
-						<a class="btn btn-sm" href="#" aria-label="Open Project 2">Live</a>
-						<a class="btn btn-sm btn-ghost" href="#" aria-label="View code for Project 2">Code</a>
-					</div>
-				</article>
-				<article class="project-card" tabindex="0">
-					<div class="project-card__body">
-						<h3>Project 3</h3>
-						<p>A short overview of the third project and its key features.</p>
-						<p class="tech">Java · Spring Boot</p>
-					</div>
-					<div class="project-card__actions">
-						<a class="btn btn-sm" href="#" aria-label="Open Project 3">Live</a>
-						<a class="btn btn-sm btn-ghost" href="#" aria-label="View code for Project 3">Code</a>
-					</div>
-				</article>
+				</div>
+				<noscript>
+					<p>Enable JavaScript to view dynamic projects.</p>
+				</noscript>
 			</div>
 		</section>
 
