@@ -292,6 +292,8 @@ h2 { text-align: center; margin-bottom: 2rem; font-size: clamp(1.5rem, 3vw, 2rem
     border-radius: 14px;
     padding: 1.5rem;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
+    position: relative;
+    overflow: hidden;
 }
 
 .tech-card:hover {
