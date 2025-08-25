@@ -254,6 +254,18 @@ h2 { text-align: center; margin-bottom: 2rem; font-size: clamp(1.5rem, 3vw, 2rem
 .like-btn { display: inline-flex; align-items: center; gap: .25rem; border: 1px solid var(--border); background: transparent; color: var(--text); border-radius: 999px; padding: .35rem .6rem; cursor: pointer; }
 .like-btn[aria-pressed="true"] { background: color-mix(in oklab, var(--brand) 20%, var(--bg-elev)); border-color: color-mix(in oklab, var(--brand) 30%, var(--border)); }
 
+/* Reactive buttons */
+.reactive {
+    will-change: transform, box-shadow;
+    transition: transform .15s ease, box-shadow .2s ease;
+    transform: translate(var(--tx, 0px), var(--ty, 0px)) scale(var(--scale, 1));
+}
+.reactive.is-hover { box-shadow: var(--shadow); }
+.reactive.is-pressed { --scale: .98; }
+.reactive.ripple-host { position: relative; overflow: hidden; }
+.ripple { position: absolute; left: 0; top: 0; width: 0; height: 0; border-radius: 999px; transform: translate(-50%, -50%); background: currentColor; opacity: .15; pointer-events: none; animation: ripple .6s ease-out forwards; }
+@keyframes ripple { 0% { width: 0; height: 0; opacity: .25; } 100% { width: 280px; height: 280px; opacity: 0; } }
+
 /* Skeleton states */
 .projects-skeleton .project-card { height: 140px; position: relative; overflow: hidden; }
 .projects-skeleton .project-card::before { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, transparent, rgba(255,255,255,.06), transparent); animation: shimmer 1.2s infinite; }

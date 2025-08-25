@@ -247,6 +247,32 @@ document.addEventListener('DOMContentLoaded', () => {
 			el.addEventListener('pointerleave', reset);
 		});
 
+		// Reactive buttons & links (tilt + ripple on press)
+		const reactiveNodes = document.querySelectorAll('button, a, md-filled-button, md-outlined-button, .btn, .like-btn');
+		reactiveNodes.forEach(node => {
+			node.classList.add('reactive','ripple-host');
+			node.addEventListener('pointerenter', () => node.classList.add('is-hover'));
+			node.addEventListener('pointerleave', () => { node.classList.remove('is-hover'); node.style.removeProperty('--tx'); node.style.removeProperty('--ty'); });
+			node.addEventListener('pointerdown', (e) => {
+				node.classList.add('is-pressed');
+				const rect = node.getBoundingClientRect();
+				const ripple = document.createElement('span');
+				ripple.className = 'ripple';
+				ripple.style.left = (e.clientX - rect.left) + 'px';
+				ripple.style.top = (e.clientY - rect.top) + 'px';
+				node.appendChild(ripple);
+				setTimeout(() => ripple.remove(), 650);
+			});
+			node.addEventListener('pointerup', () => node.classList.remove('is-pressed'));
+			node.addEventListener('pointermove', (e) => {
+				const rect = node.getBoundingClientRect();
+				const dx = (e.clientX - (rect.left + rect.width / 2)) / rect.width;
+				const dy = (e.clientY - (rect.top + rect.height / 2)) / rect.height;
+				node.style.setProperty('--tx', (dx * 4) + 'px');
+				node.style.setProperty('--ty', (dy * 4) + 'px');
+			});
+		});
+
 		// Typewriter
 		const phrases = [
 			'Developer',
