@@ -1,8 +1,5 @@
-// Minimal Preact-once loader delivered as native module for GitHub Pages
-// No build step required. Uses esm.sh CDN for Preact to keep repo simple.
-
-import { h, render } from 'https://esm.sh/preact@10.20.2?external=preact/hooks';
-import { useEffect, useMemo, useState } from 'https://esm.sh/preact@10.20.2/hooks';
+import { h, render } from 'preact';
+import { useEffect, useMemo, useState } from 'preact/hooks';
 
 const DEFAULT_PROJECTS = [
     { id: 'p1', name: 'Project 1', desc: 'A brief description of the first project highlighting goals and outcomes.', tech: ['HTML','CSS','JavaScript'], live: '#', code: '#', likes: 0 },

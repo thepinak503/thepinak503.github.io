@@ -1,3 +1,5 @@
+import '@material/web/all.js';
+
 document.addEventListener('DOMContentLoaded', () => {
 	const root = document.documentElement;
 	const yearEl = document.getElementById('year');
@@ -145,10 +147,7 @@ document.addEventListener('DOMContentLoaded', () => {
 		const loader = () => {
 			if (once.loaded) return;
 			once.loaded = true;
-			const scriptEl = document.createElement('script');
-			scriptEl.type = 'module';
-			scriptEl.src = './web-components/projects-app.js';
-			document.body.appendChild(scriptEl);
+			import('./web-components/projects-app.js');
 		};
 		const obs = new IntersectionObserver((entries) => {
 			entries.forEach(entry => {
