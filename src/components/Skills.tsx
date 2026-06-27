@@ -1,148 +1,106 @@
-import { useState, useRef } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
-import { skills } from '../data/portfolio'
+import React, { useState } from 'react';
+import { motion } from 'framer-motion';
+import { useScrollReveal } from '../hooks/useScrollReveal';
+import { skills } from '../data/portfolio';
 
 const categories = [
   { key: 'all', label: 'All Skills' },
   { key: 'frontend', label: 'Frontend' },
   { key: 'backend', label: 'Backend' },
   { key: 'security', label: 'Security' },
-  { key: 'cloud-devops', label: 'Cloud & DevOps' },
-  { key: 'tools', label: 'Tools & Systems' },
-  { key: 'mobile', label: 'Mobile' },
-]
+  { key: 'cloud', label: 'Cloud & DevOps' },
+  { key: 'tools', label: 'Tools' },
+];
 
-export default function Skills() {
-  const [activeCategory, setActiveCategory] = useState('all')
+const Skills: React.FC = () => {
+  const [activeCategory, setActiveCategory] = useState('all');
+  const { ref, isVisible } = useScrollReveal({ threshold: 0.05 });
 
-  const filtered = activeCategory === 'all'
+  const filteredSkills = activeCategory === 'all'
     ? skills
-    : skills.filter((s) => s.category === activeCategory)
+    : skills.filter(s => s.category === activeCategory);
 
   return (
-    <section className="py-20 sm:py-28 relative">
-      <div className="section-container">
+    <section id="skills" className="relative py-24 sm:py-32 bg-slate-950">
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(99,102,241,0.03)_0%,transparent_50%)]" />
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8" ref={ref}>
         {/* Section header */}
         <motion.div
-          className="mb-12"
           initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: '-80px' }}
-          transition={{ duration: 0.5 }}
+          animate={isVisible ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: 0.6 }}
+          className="text-center mb-12"
         >
-          <span className="kicker">Expertise</span>
-          <h2 className="section-title">Skills & Technologies</h2>
-          <p className="section-subtitle">
-            Technologies I work with daily to build performant, scalable applications across the full stack.
-          </p>
+          <span className="text-cyan-400 font-mono text-sm mb-4 block">// skills & expertise</span>
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-4">
+            My <span className="bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent">Toolkit</span>
+          </h2>
+          <div className="w-20 h-1 bg-gradient-to-r from-cyan-500 to-blue-500 rounded-full mx-auto" />
         </motion.div>
 
         {/* Category filters */}
-        <div className="flex flex-wrap gap-2 mb-10">
-          {categories.map((cat) => {
-            const isActive = activeCategory === cat.key
-            return (
-              <button
-                key={cat.key}
-                onClick={() => setActiveCategory(cat.key)}
-                className={`relative px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${
-                  isActive
-                    ? 'text-white'
-                    : 'text-muted hover:text-fg hover:bg-accent-subtle'
-                }`}
-              >
-                {isActive && (
-                  <motion.div
-                    layoutId="skill-category-bg"
-                    className="absolute inset-0 rounded-lg"
-                    style={{ background: 'var(--accent)' }}
-                    transition={{ type: 'spring', stiffness: 380, damping: 30 }}
-                  />
-                )}
-                <span className="relative z-10">{cat.label}</span>
-              </button>
-            )
-          })}
-        </div>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={isVisible ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: 0.6, delay: 0.1 }}
+          className="flex flex-wrap justify-center gap-2 mb-12"
+        >
+          {categories.map((cat) => (
+            <motion.button
+              key={cat.key}
+              onClick={() => setActiveCategory(cat.key)}
+              aria-pressed={activeCategory === cat.key}
+              className={`px-4 sm:px-5 py-2.5 sm:py-2 rounded-lg text-sm font-medium transition-all duration-300 ${
+                activeCategory === cat.key
+                  ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 shadow-lg shadow-cyan-500/10'
+                  : 'bg-slate-800/50 text-slate-400 border border-slate-700/50 hover:border-slate-600 hover:text-slate-300'
+              }`}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              {cat.label}
+            </motion.button>
+          ))}
+        </motion.div>
 
         {/* Skills grid */}
         <motion.div
-          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3"
-          layout
+          key={activeCategory}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4 }}
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"
         >
-          <AnimatePresence mode="popLayout">
-            {filtered.map((skill) => (
-              <SkillCard key={skill.name} skill={skill} />
-            ))}
-          </AnimatePresence>
+          {filteredSkills.map((skill, i) => (
+            <motion.div
+              key={skill.name}
+              initial={{ opacity: 0, y: 20 }}
+              animate={isVisible ? { opacity: 1, y: 0 } : {}}
+              transition={{ duration: 0.4, delay: i * 0.05 }}
+              className="group p-5 bg-slate-800/40 backdrop-blur-sm border border-slate-700/50 rounded-xl hover:border-cyan-500/30 transition-all duration-300"
+            >
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center space-x-3">
+                  <span className="text-xl">{skill.icon}</span>
+                  <span className="text-white font-medium text-sm">{skill.name}</span>
+                </div>
+                <span className="text-cyan-400 font-mono text-sm tabular-nums">{skill.level}%</span>
+              </div>
+              <div className="relative h-2 bg-slate-700/50 rounded-full overflow-hidden">
+                <motion.div
+                  initial={{ width: 0 }}
+                  animate={isVisible ? { width: `${skill.level}%` } : { width: 0 }}
+                  transition={{ duration: 1, delay: i * 0.08, ease: 'easeOut' }}
+                  className="absolute inset-y-0 left-0 bg-gradient-to-r from-cyan-500 to-blue-500 rounded-full"
+                />
+              </div>
+            </motion.div>
+          ))}
         </motion.div>
       </div>
     </section>
-  )
-}
+  );
+};
 
-function SkillCard({ skill }: { skill: typeof skills[number] }) {
-  const cardRef = useRef<HTMLDivElement>(null)
-
-  const handleMouseMove = (e: React.MouseEvent) => {
-    if (!cardRef.current) return
-    const rect = cardRef.current.getBoundingClientRect()
-    const x = (e.clientX - rect.left) / rect.width - 0.5
-    const y = (e.clientY - rect.top) / rect.height - 0.5
-    cardRef.current.style.setProperty('--rotate-x', `${y * -12}deg`)
-    cardRef.current.style.setProperty('--rotate-y', `${x * 12}deg`)
-  }
-
-  const handleMouseLeave = () => {
-    if (!cardRef.current) return
-    cardRef.current.style.setProperty('--rotate-x', '0deg')
-    cardRef.current.style.setProperty('--rotate-y', '0deg')
-  }
-
-  return (
-    <motion.div
-      layout
-      initial={{ opacity: 0, scale: 0.9 }}
-      animate={{ opacity: 1, scale: 1 }}
-      exit={{ opacity: 0, scale: 0.9 }}
-      transition={{ duration: 0.3, ease: 'easeOut' }}
-    >
-      <div
-        ref={cardRef}
-        className="glass-card p-4 card-3d cursor-default"
-        style={{ transformStyle: 'preserve-3d' }}
-        onMouseMove={handleMouseMove}
-        onMouseLeave={handleMouseLeave}
-      >
-        <div className="card-3d-inner">
-          <div className="flex items-center justify-between mb-3">
-            <div className="flex items-center gap-2.5">
-              <span className="text-lg" role="img" aria-label={skill.name}>
-                {skill.icon}
-              </span>
-              <span className="text-sm font-semibold">{skill.name}</span>
-            </div>
-            <span className="tabular-nums text-xs text-muted font-medium">{skill.level}%</span>
-          </div>
-
-          <div
-            className="h-1.5 rounded-full overflow-hidden"
-            style={{ background: 'var(--border)' }}
-          >
-            <motion.div
-              className="h-full rounded-full"
-              style={{
-                background: `linear-gradient(90deg, ${skill.color || 'var(--accent)'}, var(--accent))`,
-                width: 0,
-              }}
-              initial={{ width: 0 }}
-              whileInView={{ width: `${skill.level}%` }}
-              viewport={{ once: true }}
-              transition={{ duration: 1, delay: 0.2, ease: 'easeOut' }}
-            />
-          </div>
-        </div>
-      </div>
-    </motion.div>
-  )
-}
+export default Skills;

@@ -1,155 +1,86 @@
-import { useRef } from 'react'
-import { motion, useScroll, useTransform } from 'framer-motion'
-import { Briefcase, ChevronRight } from 'lucide-react'
-import { experiences } from '../data/portfolio'
+import React from 'react';
+import { motion } from 'framer-motion';
+import { useScrollReveal } from '../hooks/useScrollReveal';
+import { experiences } from '../data/portfolio';
+import { Briefcase, Calendar, Award } from 'lucide-react';
 
-function TimelineLine() {
-  const ref = useRef<HTMLDivElement>(null)
-  const { scrollYProgress } = useScroll({
-    target: ref,
-    offset: ['start center', 'end center'],
-  })
-
-  const scaleY = useTransform(scrollYProgress, [0, 1], [0, 1])
+const Experience: React.FC = () => {
+  const { ref, isVisible } = useScrollReveal({ threshold: 0.05 });
 
   return (
-    <div
-      ref={ref}
-      className="absolute left-[19px] top-2 bottom-2 w-px hidden md:block"
-      style={{ background: 'var(--border)' }}
-    >
-      <motion.div
-        className="w-full origin-top"
-        style={{
-          scaleY,
-          background: 'linear-gradient(to bottom, var(--accent), var(--accent-glow))',
-          height: '100%',
-        }}
-      />
-    </div>
-  )
-}
+    <section id="experience" className="relative py-24 sm:py-32 bg-slate-950">
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(99,102,241,0.03)_0%,transparent_50%)]" />
 
-function ExperienceCard({
-  exp,
-  index,
-}: {
-  exp: typeof experiences[number]
-  index: number
-}) {
-  const isEven = index % 2 === 0
-
-  return (
-    <motion.div
-      className="relative flex gap-6 md:gap-0"
-      initial={{ opacity: 0, y: 40 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: '-80px' }}
-      transition={{ duration: 0.5, delay: index * 0.15 }}
-    >
-      {/* Timeline dot (desktop) */}
-      <div className="hidden md:flex md:w-1/2 md:justify-end md:pr-12 md:items-start md:pt-1">
-        {isEven && (
-          <div className="text-right">
-            <span className="text-xs font-semibold text-accent tabular-nums">{exp.period}</span>
-          </div>
-        )}
-      </div>
-
-      {/* Center dot */}
-      <div className="hidden md:flex absolute left-1/2 -translate-x-1/2 z-10">
-        <div
-          className="w-10 h-10 rounded-full flex items-center justify-center border-2"
-          style={{
-            background: 'var(--bg)',
-            borderColor: 'var(--accent)',
-          }}
-        >
-          <Briefcase size={14} className="text-accent" />
-        </div>
-      </div>
-
-      {/* Card */}
-      <div className={`flex-1 md:w-1/2 ${isEven ? 'md:pl-12' : 'md:pr-12'}`}>
-        <div className="glass-card p-5 sm:p-6">
-          <div className="flex items-start justify-between flex-wrap gap-2 mb-3">
-            <div>
-              <h3 className="text-base font-semibold">{exp.role}</h3>
-              <p className="text-sm text-muted">{exp.company}</p>
-            </div>
-            <span className="text-xs text-muted tabular-nums whitespace-nowrap md:hidden">
-              {exp.period}
-            </span>
-          </div>
-
-          <p className="text-sm text-muted mb-4 leading-relaxed">{exp.description}</p>
-
-          <ul className="space-y-2">
-            {exp.achievements.map((achievement, i) => (
-              <motion.li
-                key={i}
-                className="flex items-start gap-2 text-sm text-muted"
-                initial={{ opacity: 0, x: -10 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: 0.3 + i * 0.08 }}
-              >
-                <ChevronRight size={14} className="text-accent mt-0.5 shrink-0" />
-                <span>{achievement}</span>
-              </motion.li>
-            ))}
-          </ul>
-        </div>
-      </div>
-    </motion.div>
-  )
-}
-
-export default function Experience() {
-  return (
-    <section className="py-20 sm:py-28 relative overflow-hidden">
-      <div className="section-container">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8" ref={ref}>
         {/* Section header */}
         <motion.div
-          className="mb-16 text-center"
           initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: '-80px' }}
-          transition={{ duration: 0.5 }}
+          animate={isVisible ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: 0.6 }}
+          className="text-center mb-16"
         >
-          <span className="kicker">Experience</span>
-          <h2 className="section-title">Work & Journey</h2>
-          <p className="section-subtitle mx-auto">
-            From student projects to production deployments — here's my path so far.
-          </p>
+          <span className="text-cyan-400 font-mono text-sm mb-4 block">// career journey</span>
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-4">
+            My <span className="bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent">Experience</span>
+          </h2>
+          <div className="w-20 h-1 bg-gradient-to-r from-cyan-500 to-blue-500 rounded-full mx-auto" />
         </motion.div>
 
         {/* Timeline */}
-        <div className="relative max-w-3xl mx-auto">
-          <TimelineLine />
+        <div className="relative">
+          {/* Timeline line */}
+          <div className="absolute left-4 md:left-1/2 top-0 bottom-0 w-px bg-gradient-to-b from-cyan-500/50 via-blue-500/30 to-transparent transform md:-translate-x-1/2" />
 
-          {/* Mobile dots */}
-          <div className="absolute left-0 top-0 bottom-0 w-px hidden sm:block md:hidden" style={{ background: 'var(--border)' }}>
-            <div className="absolute top-0 left-0 w-full h-full" style={{ background: 'linear-gradient(to bottom, var(--accent), var(--accent-glow))' }} />
-          </div>
-
-          <div className="space-y-8 sm:space-y-12">
-            {experiences.map((exp, i) => (
-              <div key={i} className="relative pl-8 sm:pl-10 md:pl-0">
-                {/* Mobile dot */}
-                <div
-                  className="absolute left-0 top-1.5 w-3 h-3 rounded-full border-2 sm:hidden"
-                  style={{
-                    background: 'var(--bg)',
-                    borderColor: 'var(--accent)',
-                  }}
-                />
-                <ExperienceCard exp={exp} index={i} />
+          {experiences.map((exp, i) => (
+            <motion.div
+              key={exp.id}
+              initial={{ opacity: 0, y: 40 }}
+              animate={isVisible ? { opacity: 1, y: 0 } : {}}
+              transition={{ duration: 0.6, delay: i * 0.2 }}
+              className={`relative flex flex-col md:flex-row items-start gap-6 mb-16 last:mb-0 ${
+                i % 2 === 0 ? 'md:flex-row' : 'md:flex-row-reverse'
+              }`}
+            >
+              {/* Timeline dot */}
+              <div className="absolute left-4 md:left-1/2 top-2 w-4 h-4 bg-cyan-500 rounded-full border-4 border-slate-950 transform -translate-x-1/2 z-10 shadow-lg shadow-cyan-500/25">
+                <div className="absolute inset-0 rounded-full animate-ping bg-cyan-500/20" />
               </div>
-            ))}
-          </div>
+
+              {/* Content */}
+              <div className={`ml-12 md:ml-0 md:w-1/2 ${i % 2 === 0 ? 'md:pr-12' : 'md:pl-12'}`}>
+                <div className="p-6 bg-slate-800/40 backdrop-blur-sm border border-slate-700/50 rounded-2xl hover:border-cyan-500/30 transition-all duration-300 group">
+                  {/* Header */}
+                  <div className="flex items-center space-x-2 mb-1">
+                    <Briefcase className="h-4 w-4 text-cyan-400" />
+                    <span className="text-sm font-mono text-cyan-400">{exp.role}</span>
+                  </div>
+
+                  <h3 className="text-xl font-bold text-white mb-1">{exp.company}</h3>
+
+                  <div className="flex items-center space-x-2 text-sm text-slate-500 mb-4">
+                    <Calendar className="h-3.5 w-3.5" />
+                    <span>{exp.period}</span>
+                  </div>
+
+                  <p className="text-slate-400 text-sm mb-4">{exp.description}</p>
+
+                  {/* Achievements */}
+                  <ul className="space-y-2">
+                    {exp.achievements.map((achievement, j) => (
+                      <li key={j} className="flex items-start space-x-2 text-sm text-slate-300">
+                        <Award className="h-4 w-4 text-cyan-400 mt-0.5 flex-shrink-0" />
+                        <span>{achievement}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+            </motion.div>
+          ))}
         </div>
       </div>
     </section>
-  )
-}
+  );
+};
+
+export default Experience;

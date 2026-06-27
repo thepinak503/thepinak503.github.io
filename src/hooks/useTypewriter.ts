@@ -1,51 +1,49 @@
-import { useEffect, useState, useCallback } from 'react'
+import { useState, useEffect, useCallback } from 'react';
 
 interface UseTypewriterOptions {
-  words: string[]
-  typeSpeed?: number
-  deleteSpeed?: number
-  delayBetween?: number
+  words: string[];
+  typeSpeed?: number;
+  deleteSpeed?: number;
+  delayBetween?: number;
 }
 
-export function useTypewriter({
-  words,
-  typeSpeed = 100,
-  deleteSpeed = 50,
-  delayBetween = 2000,
-}: UseTypewriterOptions) {
-  const [text, setText] = useState('')
-  const [wordIndex, setWordIndex] = useState(0)
-  const [isDeleting, setIsDeleting] = useState(false)
-  const [isWaiting, setIsWaiting] = useState(false)
+export function useTypewriter(options: UseTypewriterOptions) {
+  const { words, typeSpeed = 100, deleteSpeed = 50, delayBetween = 2000 } = options;
+  const [text, setText] = useState('');
+  const [wordIndex, setWordIndex] = useState(0);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [isWaiting, setIsWaiting] = useState(false);
 
   const tick = useCallback(() => {
-    const currentWord = words[wordIndex % words.length]
+    const currentWord = words[wordIndex];
 
-    if (isWaiting) return
+    if (isWaiting) {
+      setIsWaiting(false);
+      setIsDeleting(true);
+      return;
+    }
 
-    if (!isDeleting) {
-      setText(currentWord.slice(0, text.length + 1))
-      if (text.length + 1 >= currentWord.length) {
-        setIsWaiting(true)
-        setTimeout(() => {
-          setIsWaiting(false)
-          setIsDeleting(true)
-        }, delayBetween)
+    if (isDeleting) {
+      setText(currentWord.substring(0, text.length - 1));
+      if (text.length === 0) {
+        setIsDeleting(false);
+        setWordIndex((prev) => (prev + 1) % words.length);
       }
     } else {
-      setText(currentWord.slice(0, text.length - 1))
-      if (text.length - 1 <= 0) {
-        setIsDeleting(false)
-        setWordIndex((prev) => (prev + 1) % words.length)
+      setText(currentWord.substring(0, text.length + 1));
+      if (text === currentWord) {
+        setIsWaiting(true);
       }
     }
-  }, [text, wordIndex, isDeleting, isWaiting, words, delayBetween])
+  }, [text, wordIndex, isDeleting, isWaiting, words]);
 
   useEffect(() => {
-    const speed = isWaiting ? delayBetween : isDeleting ? deleteSpeed : typeSpeed
-    const timer = setTimeout(tick, speed)
-    return () => clearTimeout(timer)
-  }, [tick, isWaiting, isDeleting, typeSpeed, deleteSpeed, delayBetween])
+    const timeout = setTimeout(
+      tick,
+      isWaiting ? delayBetween : isDeleting ? deleteSpeed : typeSpeed
+    );
+    return () => clearTimeout(timeout);
+  }, [tick, isWaiting, isDeleting, delayBetween, deleteSpeed, typeSpeed]);
 
-  return text
+  return { text, isDeleting };
 }

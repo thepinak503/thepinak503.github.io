@@ -1,516 +1,297 @@
-import { useEffect, useRef, useState, useCallback, useMemo } from 'react'
-import { motion, useSpring, useScroll, useTransform } from 'framer-motion'
-import { ChevronDown, ArrowRight, Sparkles } from 'lucide-react'
-import { Link } from 'react-router-dom'
-import { Github, Linkedin } from './Icons'
-import { personalInfo, socialLinks, typewriterWords } from '../data/portfolio'
+import React, { useEffect, useRef } from 'react';
+import { motion } from 'framer-motion';
+import { ArrowDown, Github, Linkedin, Shield, Code, Lock } from 'lucide-react';
+import XLogo from './XLogo';
+import { useTypewriter } from '../hooks/useTypewriter';
+import { personalInfo, socialLinks } from '../data/portfolio';
 
-/* -- Particle canvas background (optimized with refs) -- */
-function ParticleCanvas({ mouseX, mouseY }: { mouseX: number; mouseY: number }) {
-  const canvasRef = useRef<HTMLCanvasElement>(null)
-  const particlesRef = useRef<{
-    x: number; y: number; vx: number; vy: number; size: number; alpha: number
-  }[]>([])
-  const dimsRef = useRef({ width: 0, height: 0 })
-  const animRef = useRef<number>(0)
-  const mouseRef = useRef({ x: 0, y: 0 })
-
-  // Keep mouseRef in sync without triggering re-render
-  mouseRef.current = { x: mouseX, y: mouseY }
+const ParticleBackground: React.FC = () => {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
-    const canvas = canvasRef.current
-    if (!canvas) return
-    const ctx = canvas.getContext('2d')
-    if (!ctx) return
+    const canvas = canvasRef.current;
+    if (!canvas) return;
 
-    function resize() {
-      if (!canvas) return
-      const w = canvas.parentElement?.offsetWidth || window.innerWidth
-      const h = canvas.parentElement?.offsetHeight || window.innerHeight
-      canvas.width = w
-      canvas.height = h
-      dimsRef.current = { width: w, height: h }
-    }
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
 
-    function initParticles() {
-      const { width, height } = dimsRef.current
-      const count = Math.min(60, Math.floor((width * height) / 15000))
-      particlesRef.current = Array.from({ length: count }, () => ({
-        x: Math.random() * width,
-        y: Math.random() * height,
-        vx: (Math.random() - 0.5) * 0.4,
-        vy: (Math.random() - 0.5) * 0.4,
+    let animationId: number;
+    let particles: Array<{
+      x: number;
+      y: number;
+      vx: number;
+      vy: number;
+      size: number;
+      alpha: number;
+    }> = [];
+
+    const resize = () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    };
+
+    const createParticles = () => {
+      const count = Math.floor((canvas.width * canvas.height) / 15000);
+      particles = Array.from({ length: count }, () => ({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        vx: (Math.random() - 0.5) * 0.5,
+        vy: (Math.random() - 0.5) * 0.5,
         size: Math.random() * 2 + 0.5,
-        alpha: Math.random() * 0.4 + 0.1,
-      }))
-    }
+        alpha: Math.random() * 0.5 + 0.1,
+      }));
+    };
 
-    function draw() {
-      if (!ctx || !canvas) return
-      ctx.clearRect(0, 0, canvas.width, canvas.height)
-
-      const isDark = document.documentElement.getAttribute('data-theme') === 'dark'
-      const particleColor = isDark ? '180, 190, 220' : '60, 70, 110'
-      const particles = particlesRef.current
-      const { width, height } = dimsRef.current
-      const mx = mouseRef.current.x
-      const my = mouseRef.current.y
-
-      for (const p of particles) {
-        const dx = mx - p.x
-        const dy = my - p.y
-        const dist = Math.sqrt(dx * dx + dy * dy)
-        if (dist < 200) {
-          p.vx -= dx * 0.00005
-          p.vy -= dy * 0.00005
-        }
-
-        p.x += p.vx
-        p.y += p.vy
-
-        if (p.x < 0) p.x = width
-        if (p.x > width) p.x = 0
-        if (p.y < 0) p.y = height
-        if (p.y > height) p.y = 0
-
-        p.vx *= 0.99
-        p.vy *= 0.99
-
-        ctx.beginPath()
-        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2)
-        ctx.fillStyle = `rgba(${particleColor}, ${p.alpha})`
-        ctx.fill()
-      }
-
+    const drawConnections = () => {
       for (let i = 0; i < particles.length; i++) {
         for (let j = i + 1; j < particles.length; j++) {
-          const dx = particles[i].x - particles[j].x
-          const dy = particles[i].y - particles[j].y
-          const dist = Math.sqrt(dx * dx + dy * dy)
-          if (dist < 120) {
-            ctx.beginPath()
-            ctx.moveTo(particles[i].x, particles[i].y)
-            ctx.lineTo(particles[j].x, particles[j].y)
-            ctx.strokeStyle = `rgba(${particleColor}, ${0.06 * (1 - dist / 120)})`
-            ctx.lineWidth = 0.5
-            ctx.stroke()
+          const dx = particles[i].x - particles[j].x;
+          const dy = particles[i].y - particles[j].y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+
+          if (dist < 150) {
+            ctx!.beginPath();
+            ctx!.moveTo(particles[i].x, particles[i].y);
+            ctx!.lineTo(particles[j].x, particles[j].y);
+            ctx!.strokeStyle = `rgba(34, 211, 238, ${0.06 * (1 - dist / 150)})`;
+            ctx!.stroke();
           }
         }
       }
+    };
 
-      animRef.current = requestAnimationFrame(draw)
-    }
+    const animate = () => {
+      ctx!.clearRect(0, 0, canvas.width, canvas.height);
 
-    resize()
-    initParticles()
-    draw()
+      particles.forEach((p) => {
+        p.x += p.vx;
+        p.y += p.vy;
 
-    const handleResize = () => { resize(); initParticles() }
-    window.addEventListener('resize', handleResize)
+        if (p.x < 0 || p.x > canvas.width) p.vx *= -1;
+        if (p.y < 0 || p.y > canvas.height) p.vy *= -1;
+
+        ctx!.beginPath();
+        ctx!.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+        ctx!.fillStyle = `rgba(34, 211, 238, ${p.alpha})`;
+        ctx!.fill();
+      });
+
+      drawConnections();
+      animationId = requestAnimationFrame(animate);
+    };
+
+    resize();
+    createParticles();
+    animate();
+
+    window.addEventListener('resize', () => {
+      resize();
+      createParticles();
+    });
 
     return () => {
-      cancelAnimationFrame(animRef.current)
-      window.removeEventListener('resize', handleResize)
-    }
-  }, []) // Empty deps — particle system runs once; mouse position read from ref
+      cancelAnimationFrame(animationId);
+      window.removeEventListener('resize', resize);
+    };
+  }, []);
 
   return (
     <canvas
       ref={canvasRef}
-      className="absolute inset-0 w-full h-full pointer-events-none"
+      className="absolute inset-0 pointer-events-none"
       style={{ opacity: 0.6 }}
     />
-  )
-}
+  );
+};
 
-/* -- Floating geometric shapes -- */
-function FloatingShapes() {
-  const shapes = useMemo(() => [
-    { type: 'circle' as const, size: 4, top: '15%', left: '10%', delay: 0, duration: 14, color: 'var(--accent)' },
-    { type: 'square' as const, size: 3, top: '25%', right: '15%', delay: 2, duration: 16, color: 'var(--accent)' },
-    { type: 'triangle' as const, size: 5, top: '60%', left: '85%', delay: 4, duration: 18, color: 'var(--accent)' },
-    { type: 'circle' as const, size: 2, top: '75%', left: '20%', delay: 1, duration: 12, color: 'var(--accent)' },
-    { type: 'square' as const, size: 2.5, top: '40%', right: '8%', delay: 3, duration: 15, color: 'var(--accent)' },
-    { type: 'circle' as const, size: 1.5, top: '80%', right: '30%', delay: 5, duration: 13, color: 'var(--accent)' },
-    { type: 'square' as const, size: 3.5, top: '10%', right: '40%', delay: 6, duration: 17, color: 'var(--accent)' },
-    { type: 'circle' as const, size: 2.5, top: '50%', left: '5%', delay: 0.5, duration: 11, color: 'var(--accent)' },
-  ], [])
+const Hero: React.FC = () => {
+  const { text } = useTypewriter({
+    words: ['Computer Engineering Student', 'Linux & Arch Enthusiast', 'Rust CLI Tool Builder', 'Full-Stack Developer', 'Windows & Linux Power User'],
+    typeSpeed: 80,
+    deleteSpeed: 40,
+    delayBetween: 2000,
+  });
 
-  return (
-    <div className="absolute inset-0 pointer-events-none overflow-hidden hidden md:block">
-      {shapes.map((shape, i) => {
-        const sizePx = shape.size * 8
-        const style: React.CSSProperties = {
-          position: 'absolute',
-          top: shape.top,
-          left: 'left' in shape ? shape.left as string : undefined,
-          right: 'right' in shape ? shape.right as string : undefined,
-          width: sizePx,
-          height: sizePx,
-          opacity: 0.08,
-        }
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: { staggerChildren: 0.15, delayChildren: 0.3 },
+    },
+  };
 
-        if (shape.type === 'circle') {
-          return (
-            <motion.div
-              key={i}
-              className="absolute rounded-full"
-              style={{ ...style, background: shape.color }}
-              initial={{ opacity: 0, scale: 0 }}
-              animate={{
-                opacity: [0.06, 0.12, 0.06],
-                scale: [1, 1.1, 1],
-                y: [0, -15, 0],
-              }}
-              transition={{
-                duration: shape.duration,
-                repeat: Infinity,
-                delay: shape.delay,
-                ease: 'easeInOut',
-              }}
-            />
-          )
-        }
+  const itemVariants = {
+    hidden: { opacity: 0, y: 30 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: 'easeOut' as const } },
+  };
 
-        if (shape.type === 'square') {
-          return (
-            <motion.div
-              key={i}
-              className="absolute"
-              style={{ ...style, border: `1px solid ${shape.color}`, borderRadius: '2px' }}
-              initial={{ opacity: 0, scale: 0 }}
-              animate={{
-                opacity: [0.06, 0.12, 0.06],
-                scale: [1, 1.1, 1],
-                y: [0, -15, 0],
-              }}
-              transition={{
-                duration: shape.duration,
-                repeat: Infinity,
-                delay: shape.delay,
-                ease: 'easeInOut',
-              }}
-            />
-          )
-        }
+  const floatingIcons = [
+    { Icon: Shield, x: '15%', y: '20%', delay: 0 },
+    { Icon: Code, x: '85%', y: '25%', delay: 1 },
+    { Icon: Lock, x: '10%', y: '70%', delay: 2 },
+  ];
 
-        return (
-          <motion.div
-            key={i}
-            className="absolute"
-            style={{
-              ...style,
-              background: shape.color,
-              clipPath: 'polygon(50% 0%, 0% 100%, 100% 100%)',
-            }}
-            initial={{ opacity: 0, scale: 0 }}
-            animate={{
-              opacity: [0.06, 0.12, 0.06],
-              scale: [1, 1.1, 1],
-              y: [0, -15, 0],
-            }}
-            transition={{
-              duration: shape.duration,
-              repeat: Infinity,
-              delay: shape.delay,
-              ease: 'easeInOut',
-            }}
-          />
-        )
-      })}
-    </div>
-  )
-}
-
-/* -- Aurora gradient background -- */
-function AuroraBackground() {
-  return (
-    <div className="absolute inset-0 pointer-events-none overflow-hidden">
-      <div
-        className="absolute -top-1/2 -left-1/2 w-full h-full"
-        style={{
-          background: 'radial-gradient(ellipse 60% 50% at 30% 40%, var(--accent-glow) 0%, transparent 70%)',
-          filter: 'blur(60px)',
-          opacity: 0.3,
-        }}
-      />
-      <div
-        className="absolute -bottom-1/2 -right-1/2 w-full h-full"
-        style={{
-          background: 'radial-gradient(ellipse 50% 40% at 70% 60%, var(--accent-glow) 0%, transparent 70%)',
-          filter: 'blur(60px)',
-          opacity: 0.2,
-        }}
-      />
-    </div>
-  )
-}
-
-/* -- Orbiting accent elements -- */
-function OrbitingElements() {
-  return (
-    <div className="absolute inset-0 pointer-events-none overflow-hidden hidden lg:block">
-      <motion.div
-        className="absolute top-1/4 right-1/4 w-1 h-1 rounded-full"
-        style={{ background: 'var(--accent)', opacity: 0.3 }}
-        animate={{ rotate: 360 }}
-        transition={{ duration: 20, repeat: Infinity, ease: 'linear' }}
-      >
-        <div
-          className="w-2 h-2 rounded-full absolute"
-          style={{ background: 'var(--accent)', top: -4, left: -4, opacity: 0.2 }}
-        />
-      </motion.div>
-      <motion.div
-        className="absolute bottom-1/3 left-1/4 w-0.5 h-0.5 rounded-full"
-        style={{ background: 'var(--accent)', opacity: 0.2 }}
-        animate={{ rotate: -360 }}
-        transition={{ duration: 25, repeat: Infinity, ease: 'linear' }}
-      >
-        <div
-          className="w-3 h-3 rounded-full absolute"
-          style={{ background: 'var(--accent)', top: -6, left: -6, opacity: 0.1 }}
-        />
-      </motion.div>
-    </div>
-  )
-}
-
-/* -- Typewriter hook -- */
-function useTypewriter(words: string[], typingSpeed = 60, deletingSpeed = 30, pauseDuration = 2000) {
-  const [text, setText] = useState('')
-  const [wordIndex, setWordIndex] = useState(0)
-  const [isDeleting, setIsDeleting] = useState(false)
-
-  useEffect(() => {
-    const currentWord = words[wordIndex]
-    let timeout: ReturnType<typeof setTimeout>
-
-    if (!isDeleting) {
-      if (text.length < currentWord.length) {
-        timeout = setTimeout(() => {
-          setText(currentWord.slice(0, text.length + 1))
-        }, typingSpeed)
-      } else {
-        timeout = setTimeout(() => setIsDeleting(true), pauseDuration)
-      }
-    } else {
-      if (text.length > 0) {
-        timeout = setTimeout(() => {
-          setText(text.slice(0, -1))
-        }, deletingSpeed)
-      } else {
-        setIsDeleting(false)
-        setWordIndex((prev) => (prev + 1) % words.length)
-      }
+  const getSocialIcon = (name: string) => {
+    switch (name) {
+      case 'github': return Github;
+      case 'linkedin': return Linkedin;
+      case 'x': return XLogo;
+      case 'code': return Code;
+      default: return Github;
     }
-
-    return () => clearTimeout(timeout)
-  }, [text, wordIndex, isDeleting, words, typingSpeed, deletingSpeed, pauseDuration])
-
-  return text
-}
-
-/* -- Scroll indicator -- */
-function ScrollIndicator() {
-  const { scrollYProgress } = useScroll()
-  const scaleY = useSpring(scrollYProgress, { stiffness: 100, damping: 30 })
-
-  return (
-    <motion.div
-      className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ delay: 2, duration: 1 }}
-    >
-      <span className="text-[10px] uppercase tracking-widest text-muted font-medium">Scroll</span>
-      <div className="w-px h-10 relative overflow-hidden rounded-full" style={{ background: 'var(--border)' }}>
-        <motion.div
-          className="absolute top-0 left-0 w-full rounded-full"
-          style={{
-            background: 'var(--accent)',
-            scaleY,
-            transformOrigin: 'top',
-            height: '100%',
-          }}
-        />
-      </div>
-      <ChevronDown size={12} className="text-muted" />
-    </motion.div>
-  )
-}
-
-/* -- Main Hero -- */
-export default function Hero() {
-  const [mousePos, setMousePos] = useState({ x: 0, y: 0 })
-  const heroRef = useRef<HTMLDivElement>(null)
-  const typedText = useTypewriter(typewriterWords)
-
-  const handleMouseMove = useCallback((e: React.MouseEvent) => {
-    if (!heroRef.current) return
-    const rect = heroRef.current.getBoundingClientRect()
-    const x = e.clientX - rect.left
-    const y = e.clientY - rect.top
-    setMousePos({ x, y })
-  }, [])
-
-  const { scrollYProgress } = useScroll({
-    target: heroRef,
-    offset: ['start start', 'end start'],
-  })
-
-  const heroOpacity = useTransform(scrollYProgress, [0, 0.8], [1, 0])
-  const heroScale = useTransform(scrollYProgress, [0, 0.8], [1, 0.95])
-  const heroY = useTransform(scrollYProgress, [0, 0.8], [0, 80])
+  };
 
   return (
     <section
-      ref={heroRef}
-      className="relative min-h-[90vh] sm:min-h-screen flex items-center justify-center overflow-hidden"
-      onMouseMove={handleMouseMove}
-      style={{ background: 'var(--bg)' }}
+      id="home"
+      className="relative min-h-screen flex items-center justify-center overflow-hidden bg-slate-950"
     >
-      <AuroraBackground />
-      <ParticleCanvas mouseX={mousePos.x} mouseY={mousePos.y} />
-      <FloatingShapes />
-      <OrbitingElements />
+      {/* Background gradient */}
+      <div className="absolute inset-0">
+        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-cyan-500/20 rounded-full blur-[128px]" />
+        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-blue-600/20 rounded-full blur-[128px]" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-purple-500/10 rounded-full blur-[200px]" />
+      </div>
 
+      {/* Particle network */}
+      <ParticleBackground />
+
+      {/* Floating icons */}
+      {floatingIcons.map(({ Icon, x, y, delay }, i) => (
+        <motion.div
+          key={i}
+          className="absolute hidden lg:block"
+          style={{ left: x, top: y }}
+          animate={{
+            y: [0, -15, 0],
+            rotate: [0, 10, -10, 0],
+          }}
+          transition={{
+            duration: 5,
+            repeat: Infinity,
+            delay,
+            ease: 'easeInOut',
+          }}
+        >
+          <div className="p-4 bg-slate-800/40 backdrop-blur-sm border border-cyan-500/20 rounded-2xl">
+            <Icon className="h-8 w-8 text-cyan-400" />
+          </div>
+        </motion.div>
+      ))}
+
+      {/* Grid overlay */}
       <div
-        className="absolute inset-0 pointer-events-none opacity-[0.015]"
+        className="absolute inset-0 opacity-[0.03]"
         style={{
           backgroundImage: `
-            linear-gradient(var(--fg) 1px, transparent 1px),
-            linear-gradient(90deg, var(--fg) 1px, transparent 1px)
+            linear-gradient(rgba(34, 211, 238, 0.3) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(34, 211, 238, 0.3) 1px, transparent 1px)
           `,
           backgroundSize: '60px 60px',
         }}
       />
 
-      <div
-        className="absolute pointer-events-none transition-opacity duration-500 hidden md:block"
-        style={{
-          left: mousePos.x,
-          top: mousePos.y,
-          width: 400,
-          height: 400,
-          transform: 'translate(-50%, -50%)',
-          background: 'radial-gradient(circle, var(--accent-glow) 0%, transparent 70%)',
-          opacity: mousePos.x > 0 ? 0.3 : 0,
-        }}
-      />
-
       {/* Content */}
       <motion.div
-        className="relative z-10 section-container text-center"
-        style={{ opacity: heroOpacity, scale: heroScale, y: heroY }}
+        variants={containerVariants}
+        initial="hidden"
+        animate="visible"
+        className="relative z-10 text-center px-4 max-w-5xl mx-auto"
       >
-        <motion.div
-          className="flex items-center justify-center gap-2 mb-6"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.1 }}
-        >
-          <span className="status-pill status-pill--success text-xs">
-            <Sparkles size={10} />
-            Open for opportunities
+        <motion.div variants={itemVariants} className="mb-6">
+          <span className="inline-flex items-center px-4 py-1.5 bg-cyan-500/10 border border-cyan-500/20 rounded-full text-cyan-300 text-sm font-medium">
+            <span className="w-2 h-2 bg-cyan-400 rounded-full animate-pulse mr-2" />
+            Available for opportunities
           </span>
         </motion.div>
 
         <motion.h1
-          className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-extrabold leading-[0.95] mb-4"
-          style={{ letterSpacing: '-0.04em', color: 'var(--fg)' }}
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, delay: 0.2, ease: 'easeOut' }}
+          variants={itemVariants}
+          className="text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-black text-white mb-6 tracking-tight"
         >
-          {personalInfo.name.split(' ').map((word, i, arr) => (
-            <span key={i} className="inline-block">
-              <span className={i === 1 ? 'gradient-text' : ''}>{word}</span>
-              {i < arr.length - 1 && <span className="mx-3 sm:mx-4" />}
-            </span>
-          ))}
+          Hi, I'm{' '}
+          <span className="bg-gradient-to-r from-cyan-400 via-blue-400 to-purple-400 bg-clip-text text-transparent">
+            {personalInfo.name}
+          </span>
         </motion.h1>
 
         <motion.div
-          className="flex items-center justify-center gap-2 mb-6"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.6, delay: 0.4 }}
+          variants={itemVariants}
+          className="h-14 sm:h-16 flex items-center justify-center mb-8"
         >
-          <span className="text-lg sm:text-xl text-muted font-medium">{personalInfo.shortBio.split('·')[0]}</span>
-        </motion.div>
-
-        <motion.div
-          className="flex items-center justify-center gap-2 mb-8"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.6, delay: 0.5 }}
-        >
-          <span className="text-base sm:text-lg text-muted">
-            <span className="hidden sm:inline">Currently: </span>
-          </span>
-          <span className="text-base sm:text-lg font-semibold text-fg relative">
-            <span>{typedText}</span>
-            <span className="inline-block w-[2px] h-[1em] ml-0.5 bg-accent animate-typing-cursor align-middle" />
+          <span className="text-lg sm:text-xl md:text-3xl text-slate-300 font-light">
+            <span className="text-cyan-400 font-mono">&gt; </span>
+            {text}
+            <motion.span
+              animate={{ opacity: [1, 0] }}
+              transition={{ duration: 0.8, repeat: Infinity, repeatType: 'reverse' }}
+              className="inline-block w-0.5 h-5 sm:h-7 bg-cyan-400 ml-1"
+            />
           </span>
         </motion.div>
 
-        <motion.div
-          className="flex items-center justify-center gap-3 sm:gap-4 flex-wrap"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.6 }}
+        <motion.p
+          variants={itemVariants}
+          className="text-base sm:text-lg md:text-xl text-slate-400 max-w-2xl mx-auto mb-10 leading-relaxed"
         >
-          <Link to="/projects" className="btn btn-primary group">
-            View Projects
-            <ArrowRight size={14} className="transition-transform group-hover:translate-x-0.5" />
-          </Link>
-          <Link to="/contact" className="btn btn-secondary">
-            Get in Touch
-          </Link>
+          I build{' '}
+          <span className="text-cyan-300 font-medium">CLI tools</span>,{' '}
+          <span className="text-blue-300 font-medium">dotfiles</span>,{' '}
+          <span className="text-purple-300 font-medium">web apps</span>, and{' '}
+          <span className="text-emerald-300 font-medium">Android apps</span>.
+          Linux enthusiast, Rust experimenter, and automation addict.
+        </motion.p>
+
+        <motion.div variants={itemVariants} className="flex flex-wrap items-center justify-center gap-4 mb-12">
+          <motion.a
+            href="#projects"
+            className="px-8 py-3.5 bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-semibold rounded-xl shadow-lg shadow-cyan-500/25 hover:shadow-xl hover:shadow-cyan-500/30 transition-all duration-300"
+            whileHover={{ scale: 1.05, y: -2 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            View My Work
+          </motion.a>
+          <motion.a
+            href="#contact"
+            className="px-8 py-3.5 border border-slate-600 text-slate-300 font-semibold rounded-xl hover:bg-slate-800 hover:border-slate-500 transition-all duration-300"
+            whileHover={{ scale: 1.05, y: -2 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            Get In Touch
+          </motion.a>
         </motion.div>
 
-        <motion.div
-          className="flex items-center justify-center gap-4 mt-8"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.6, delay: 0.8 }}
-        >
-          {socialLinks.map((link, i) => {
-            const iconMap: Record<string, React.ReactNode> = {
-              github: <Github size={16} />,
-              linkedin: <Linkedin size={16} />,
-            }
+        <motion.div variants={itemVariants} className="flex items-center justify-center space-x-4">
+          {socialLinks.map((link) => {
+            const Icon = getSocialIcon(link.icon);
             return (
               <motion.a
                 key={link.name}
                 href={link.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="btn-ghost btn-icon text-muted hover:text-fg"
-                aria-label={link.name}
-                initial={{ opacity: 0, scale: 0 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: 0.9 + i * 0.1 }}
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.95 }}
+                className="p-3 text-slate-400 hover:text-cyan-400 hover:bg-slate-800 rounded-xl transition-all duration-300"
+                whileHover={{ scale: 1.15, y: -2 }}
+                whileTap={{ scale: 0.9 }}
+                title={link.name}
               >
-                {iconMap[link.icon] || null}
+                <Icon className="h-5 w-5" />
               </motion.a>
-            )
+            );
           })}
-          <span className="h-4 w-px" style={{ background: 'var(--border)' }} />
-          <a
-            href={`mailto:${personalInfo.email}`}
-            className="text-xs text-muted hover:text-accent transition-colors animated-link"
-          >
-            {personalInfo.email}
-          </a>
         </motion.div>
       </motion.div>
 
-      <ScrollIndicator />
+      {/* Scroll indicator */}
+      <motion.div
+        className="absolute bottom-8 left-1/2 -translate-x-1/2"
+        animate={{ y: [0, 8, 0] }}
+        transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+      >
+        <ArrowDown className="h-5 w-5 text-slate-500" />
+      </motion.div>
     </section>
-  )
-}
+  );
+};
+
+export default Hero;
